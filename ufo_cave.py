@@ -8,7 +8,12 @@ pygame.init()
 WIDTH, HEIGHT = 900, 600
 FPS = 60
 
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+DISPLAY_SCALE = 1.5
+DISPLAY_W = int(WIDTH * DISPLAY_SCALE)
+DISPLAY_H = int(HEIGHT * DISPLAY_SCALE)
+
+screen = pygame.display.set_mode((DISPLAY_W, DISPLAY_H))
+canvas = pygame.Surface((WIDTH, HEIGHT))
 pygame.display.set_caption("UFO Cave Flyer - 2 Drivers!")
 clock = pygame.time.Clock()
 
@@ -396,18 +401,18 @@ class Game:
         self.diamonds.append(Diamond(spawn_x, y))
 
     def draw(self):
-        screen.fill(BG_COLOR)
+        canvas.fill(BG_COLOR)
 
         if self.state in ("playing", "crashed"):
-            self.terrain.draw(screen)
-            self.ufo.draw(screen)
+            self.terrain.draw(canvas)
+            self.ufo.draw(canvas)
             for d in self.diamonds:
-                d.draw(screen)
-            draw_text(screen, f"Score: {int(self.score)}", 10, 10, YELLOW, 3)
-            draw_text(screen, "P1: Q up  A down",       WIDTH - text_w("P1: Q up  A down", 2) - 8, 8,  CYAN,   2)
-            draw_text(screen, "P2: < left  > right",    WIDTH - text_w("P2: < left  > right", 2) - 8, 26, ORANGE, 2)
+                d.draw(canvas)
+            draw_text(canvas, f"Score: {int(self.score)}", 10, 10, YELLOW, 3)
+            draw_text(canvas, "P1: Q up  A down",       WIDTH - text_w("P1: Q up  A down", 2) - 8, 8,  CYAN,   2)
+            draw_text(canvas, "P2: < left  > right",    WIDTH - text_w("P2: < left  > right", 2) - 8, 26, ORANGE, 2)
             if self.ufo.shield_time > 0:
-                draw_text(screen, f"Shield: {self.ufo.shield_time:.1f}s", 10, HEIGHT - 30, CYAN, 2)
+                draw_text(canvas, f"Shield: {self.ufo.shield_time:.1f}s", 10, HEIGHT - 30, CYAN, 2)
 
         if self.state == "start":
             self._draw_overlay()
@@ -416,25 +421,26 @@ class Game:
             self._draw_overlay()
             self._draw_crashed()
 
+        screen.blit(pygame.transform.scale(canvas, (DISPLAY_W, DISPLAY_H)), (0, 0))
         pygame.display.flip()
 
     def _draw_overlay(self):
         ov = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
         ov.fill((0, 0, 0, 165))
-        screen.blit(ov, (0, 0))
+        canvas.blit(ov, (0, 0))
 
     def _draw_start(self):
-        draw_text_centered(screen, "UFO CAVE FLYER", WIDTH//2, 90,  CYAN,   4)
-        draw_text_centered(screen, "Two pilots  one saucer  cooperate or crash", WIDTH//2, 180, WHITE,  2)
-        draw_text_centered(screen, "Driver 1:  Q up   A down",   WIDTH//2, 240, CYAN,   2)
-        draw_text_centered(screen, "Driver 2:  < left  > right", WIDTH//2, 270, ORANGE, 2)
-        draw_text_centered(screen, "Score rises every second.  One life.",  WIDTH//2, 330, WHITE,  2)
-        draw_text_centered(screen, "Press space to launch",      WIDTH//2, 410, YELLOW, 3)
+        draw_text_centered(canvas, "UFO CAVE FLYER", WIDTH//2, 90,  CYAN,   4)
+        draw_text_centered(canvas, "Two pilots  one saucer  cooperate or crash", WIDTH//2, 180, WHITE,  2)
+        draw_text_centered(canvas, "Driver 1:  Q up   A down",   WIDTH//2, 240, CYAN,   2)
+        draw_text_centered(canvas, "Driver 2:  < left  > right", WIDTH//2, 270, ORANGE, 2)
+        draw_text_centered(canvas, "Score rises every second.  One life.",  WIDTH//2, 330, WHITE,  2)
+        draw_text_centered(canvas, "Press space to launch",      WIDTH//2, 410, YELLOW, 3)
 
     def _draw_crashed(self):
-        draw_text_centered(screen, "Crashed!",                    WIDTH//2, 150, RED,    5)
-        draw_text_centered(screen, f"Final score: {int(self.score)}", WIDTH//2, 270, YELLOW, 3)
-        draw_text_centered(screen, "Press space to try again",   WIDTH//2, 370, WHITE,  2)
+        draw_text_centered(canvas, "Crashed!",                    WIDTH//2, 150, RED,    5)
+        draw_text_centered(canvas, f"Final score: {int(self.score)}", WIDTH//2, 270, YELLOW, 3)
+        draw_text_centered(canvas, "Press space to try again",   WIDTH//2, 370, WHITE,  2)
 
 
 def main():
